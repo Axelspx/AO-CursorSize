@@ -1,46 +1,98 @@
-import pywin32_system32
-import psutil
-import ctypes
-import time
 import win32gui
 import keyboard
-import pygetwindow as pygw
-import winreg
+import os
+from win32_window_monitor import *
+import ctypes
 
-DEFAULT_SIZE = 1
-ALBION_SIZE = 2
+SPI_SETCURSORSIZE = 0x2029
+SPIF_UPDATEINIFILE = 0x01
+SPIF_SENDCHANGE = 0x02
 
-running = True
+user32 = ctypes.WinDLL("user32", use_last_error=True)
+user32.SystemParametersInfoW.restype = ctypes.c_bool
+user32.SystemParametersInfoW.argtypes = [
+    ctypes.c_uint,
+    ctypes.c_uint,
+    ctypes.c_void_p,
+    ctypes.c_uint,
+    ]
+
+AO_CLIENT = "Albion Online Client"
+SIZE_0 = 16
+SIZE_0_5 = 24
+SIZE_1 = 32 # Windows default (Accessibility cursor size slider value 1)
+SIZE_1_5 = 40
+SIZE_2 = 48
+SIZE_3 = 64
+last_size = None
+ao_client_focus = False
+other_focus = False
 
 
-def set_cursor_size(size):
-    #! do this with pywinauto ??
-    return
 
-def check_foreground():
-    while running:
-        time.sleep(0.5)
-        if is_ao_client():
-            set_cursor_size(ALBION_SIZE)
-        else:
-            set_cursor_size(DEFAULT_SIZE)
+def set_cursor_size(size) -> bool:
+    global last_size
+    if last_size == size:
+        return True
+    print('Setting cursor size..')
 
-def is_ao_client() -> bool:
-    curr_window = pygw.getActiveWindow()
-    if curr_window and hasattr(curr_window, 'title'):
-        return curr_window.title == "Albion Online Client"
-    return False
+    ok = user32.SystemParametersInfoW(
+        SPI_SETCURSORSIZE,
+        0,
+        ctypes.c_void_p(size),
+        SPIF_UPDATEINIFILE | SPIF_SENDCHANGE,
+        )
+
+    if not ok:
+        err = ctypes.get_last_error()
+        print(f"SystemParametersInfoW failed, GetLastError={err}")
+        return False
+    print(f'Set cursor size to {size}')
+    last_size = size
+    return True
+
+
+def on_event( # window change foreground events
+        win_event_hook_handle=None,
+        event_id=None,
+        hwnd=None,
+        id_object=None,
+        id_child=None,
+        event_thread_id=None,
+        event_time_ms=None,
+        ):
+    global ao_client_focus
+    window_title = get_window_title(hwnd)
+    print(' - '+window_title)
+
+    if window_title == AO_CLIENT:
+        ao_client_focus = True
+        set_cursor_size(SIZE_1_5)
+        return
+    if ao_client_focus and window_title != AO_CLIENT:
+        ao_client_focus = False
+        set_cursor_size(SIZE_1)
+        return
+
+
+def start_script():
+    global hook
+    on_event(hwnd=win32gui.GetForegroundWindow())
+    with init_com(), post_quit_message_on_break_signal():
+        hook = set_win_event_hook(on_event, HookEvent.SYSTEM_FOREGROUND)
+
+        try:
+            run_message_loop()
+        finally:
+            hook.unhook()
 
 
 
 if __name__ == "__main__":
     def stop_script():
-        global running
-        running = False
+        set_cursor_size(SIZE_1)
+        hook.unhook()
+        os._exit(0)
 
-    keyboard.add_hotkey('alt+x', lambda: set_cursor_size(2), suppress=True)
-    keyboard.add_hotkey('alt+z', lambda: set_cursor_size(1), suppress=True)
-    keyboard.add_hotkey('shift+x', stop_script, suppress=True)
-
-    while running:
-        time.sleep(0.1)
+    keyboard.add_hotkey('shift+x', stop_script)
+    start_script()
