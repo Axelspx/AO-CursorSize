@@ -4,6 +4,7 @@ import os
 from win32_window_monitor import *
 import ctypes
 
+
 SPI_SETCURSORSIZE = 0x2029
 SPIF_UPDATEINIFILE = 0x01
 SPIF_SENDCHANGE = 0x02
@@ -17,13 +18,15 @@ user32.SystemParametersInfoW.argtypes = [
     ctypes.c_uint,
     ]
 
-AO_CLIENT = "Albion Online Client"
+IGNORED_TITLES = [None, "", "Task Switching"]
+AO_TITLE = "Albion Online Client"
 SIZE_0 = 16
 SIZE_0_5 = 24
 SIZE_1 = 32 # Windows default (Accessibility cursor size slider value 1)
 SIZE_1_5 = 40
 SIZE_2 = 48
 SIZE_3 = 64
+SIZE_CUSTOM = 44
 last_size = None
 ao_client_focus = False
 other_focus = False
@@ -63,19 +66,22 @@ def on_event( # window change foreground events
         ):
     global ao_client_focus
     window_title = get_window_title(hwnd)
+
+    if window_title in IGNORED_TITLES:
+        return
     print(' - '+window_title)
 
-    if window_title == AO_CLIENT:
+    if window_title == AO_TITLE:
         ao_client_focus = True
-        set_cursor_size(SIZE_1_5)
+        set_cursor_size(SIZE_CUSTOM)
         return
-    if ao_client_focus and window_title != AO_CLIENT:
+    if ao_client_focus and window_title != AO_TITLE:
         ao_client_focus = False
         set_cursor_size(SIZE_1)
         return
 
 
-def start_script():
+def main():
     global hook
     on_event(hwnd=win32gui.GetForegroundWindow())
     with init_com(), post_quit_message_on_break_signal():
@@ -95,4 +101,4 @@ if __name__ == "__main__":
         os._exit(0)
 
     keyboard.add_hotkey('shift+x', stop_script)
-    start_script()
+    main()
