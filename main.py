@@ -3,6 +3,7 @@ import keyboard
 import os
 from win32_window_monitor import *
 import ctypes
+from tray import Tray
 
 
 SPI_SETCURSORSIZE = 0x2029
@@ -20,20 +21,15 @@ user32.SystemParametersInfoW.argtypes = [
 
 IGNORED_TITLES = [None, "", "Task Switching"]
 AO_TITLE = "Albion Online Client"
-SIZE_0 = 16
-SIZE_0_5 = 24
-SIZE_1 = 32 # Windows default (Accessibility cursor size slider value 1)
-SIZE_1_5 = 40
-SIZE_2 = 48
-SIZE_3 = 64
+SIZE_DEFAULT = 32 # Windows default (Accessibility cursor size slider value 1)
 SIZE_CUSTOM = 44
+
 last_size = None
-ao_client_focus = False
-other_focus = False
+is_ao_focus = False
 
 
 
-def set_cursor_size(size) -> bool:
+def set_cursor_size(size=SIZE_DEFAULT) -> bool:
     global last_size
     if last_size == size:
         return True
@@ -64,7 +60,7 @@ def on_event( # window change foreground events
         event_thread_id=None,
         event_time_ms=None,
         ):
-    global ao_client_focus
+    global is_ao_focus
     window_title = get_window_title(hwnd)
 
     if window_title in IGNORED_TITLES:
@@ -72,16 +68,16 @@ def on_event( # window change foreground events
     print(' - '+window_title)
 
     if window_title == AO_TITLE:
-        ao_client_focus = True
+        is_ao_focus = True
         set_cursor_size(SIZE_CUSTOM)
         return
-    if ao_client_focus and window_title != AO_TITLE:
-        ao_client_focus = False
-        set_cursor_size(SIZE_1)
+    if is_ao_focus and window_title != AO_TITLE:
+        is_ao_focus = False
+        set_cursor_size(SIZE_DEFAULT)
         return
 
 
-def main():
+def start_hook():
     global hook
     on_event(hwnd=win32gui.GetForegroundWindow())
     with init_com(), post_quit_message_on_break_signal():
@@ -94,11 +90,22 @@ def main():
 
 
 
-if __name__ == "__main__":
-    def stop_script():
-        set_cursor_size(SIZE_1)
-        hook.unhook()
-        os._exit(0)
+## MAIN CONTROL ##
 
-    keyboard.add_hotkey('shift+x', stop_script)
-    main()
+def start_main():
+    tray.thread.start()
+    start_hook()
+
+def stop_main():
+    set_cursor_size(SIZE_DEFAULT)
+    hook.unhook()
+    os._exit(0)
+
+
+if __name__ == "__main__":
+    keyboard.add_hotkey('shift+x', stop_main)
+    tray = Tray(
+        exit_callback=stop_main,
+        size_callback=set_cursor_size,
+        )
+    start_main()
