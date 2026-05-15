@@ -3,6 +3,7 @@ import pystray
 from pystray import MenuItem as Item, Menu
 from PIL import Image
 import settings
+from settings import save_selected_size
 
 
 
@@ -30,6 +31,7 @@ class Tray:
 
     def on_select_size(self, size:int=32, icon=None, item=None):
         settings.selected_size = size
+        save_selected_size()
         self.icon.menu = self.build_menu()
 
     def is_selected_size(self, size:int) -> bool:
