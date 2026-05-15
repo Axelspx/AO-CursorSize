@@ -30,7 +30,7 @@ def set_cursor_size(size: int= SIZE_DEFAULT) -> bool:
 
     if not ok:
         err = ctypes.get_last_error()
-        print(f"SystemParametersInfoW failed, GetLastError={err}")
+        print(f"SystemParametersInfoW failed, Error: {err}")
         return False
     print(f'Set cursor size to {size}')
     settings.current_size = size
@@ -44,7 +44,7 @@ def on_event( # window change foreground events
         id_child=None,
         event_thread_id=None,
         event_time_ms=None,
-        ):
+        ) -> None:
     window_title = get_window_title(hwnd)
     print(f' [*] Event - Title: {window_title}, is_ao_focus: {settings.is_ao_focus}')
 
@@ -63,7 +63,7 @@ def on_event( # window change foreground events
         return
 
 
-def start_hook():
+def start_hook() -> None:
     global hook
     on_event(hwnd=win32gui.GetForegroundWindow())
     with init_com(), post_quit_message_on_break_signal():
@@ -91,9 +91,5 @@ def stop_main():
 
 
 if __name__ == "__main__":
-
-    tray = Tray(
-        exit_callback=stop_main,
-        size_callback=set_cursor_size,
-        )
+    tray = Tray(exit_callback=stop_main)
     start_main()

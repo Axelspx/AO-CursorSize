@@ -18,13 +18,13 @@ AO_TITLE = "Albion Online Client"
 SIZE_DEFAULT = 32 # Windows default (Accessibility cursor size slider value 1)
 
 ## GLOBALS ##
-selected_size = SIZE_DEFAULT
-current_size = SIZE_DEFAULT
-is_ao_focus = False
+selected_size: int= SIZE_DEFAULT
+current_size: int= SIZE_DEFAULT
+is_ao_focus: bool= False
 
 
 ## REGISTRY ##
-def load_selected_size():
+def load_selected_size() -> None:
     global selected_size
     try:
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor")
@@ -35,7 +35,7 @@ def load_selected_size():
         selected_size = SIZE_DEFAULT
         print("ERROR: Unable to load selected size from registry.")
 
-def save_selected_size():
+def save_selected_size() -> None:
     try:
         key =  winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor")
         winreg.SetValueEx(key, "selected_size", 0, winreg.REG_DWORD, selected_size)
@@ -44,6 +44,8 @@ def save_selected_size():
     except OSError:
         print("ERROR: Unable to save selected size to registry.")
 
-
+def set_startup():
+    #TODO
+    pass
 
 
