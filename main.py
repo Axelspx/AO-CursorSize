@@ -11,7 +11,7 @@ from settings import (
     load_selected_size, save_selected_size,
     )
 
-
+event_count = 0
 
 def set_cursor_size(size: int= SIZE_DEFAULT) -> bool:
 
@@ -45,8 +45,10 @@ def on_event( # window change foreground events
         event_thread_id=None,
         event_time_ms=None,
         ) -> None:
+    global event_count
     window_title = get_window_title(hwnd)
-    print(f' [*] Event - Title: {window_title}, is_ao_focus: {settings.is_ao_focus}')
+    event_count += 1
+    print(f' [{event_count}] Event - Title: {window_title}, is_ao_focus: {settings.is_ao_focus}')
 
     if window_title in IGNORED_TITLES:
         print('  - Ignored title')

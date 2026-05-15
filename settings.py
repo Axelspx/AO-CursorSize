@@ -1,5 +1,7 @@
 import winreg
 import ctypes
+import os
+import sys
 
 ## CONSTANTS ##
 user32 = ctypes.WinDLL("user32", use_last_error=True)
@@ -47,5 +49,15 @@ def save_selected_size() -> None:
 def set_startup():
     #TODO
     pass
+
+
+## .EXE ##
+def get_path(orig_path:str):
+    if hasattr(sys, "_MEIPASS"):
+        # Pyinstaller creates a temp folder and stores path in _MEIPASS
+        return os.path.join(sys._MEIPASS, orig_path)
+    return os.path.join(os.path.abspath("."), orig_path)
+
+
 
 

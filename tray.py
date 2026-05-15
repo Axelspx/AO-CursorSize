@@ -3,14 +3,14 @@ import pystray
 from pystray import MenuItem as Item, Menu
 from PIL import Image
 import settings
-from settings import save_selected_size, set_startup
+from settings import save_selected_size, set_startup, get_path
 
 
 
 class Tray:
     def __init__(self, exit_callback) -> None:
         self.exit_callback = exit_callback
-        self.icon_path = Image.open("Icons/Cursor.png")
+        self.icon_path = Image.open(get_path("Icons/Cursor.png"))
         self.icon = pystray.Icon(
             "AO Cursor",
             icon = self.icon_path,
@@ -54,7 +54,7 @@ class Tray:
             self.menu_item('x2', 64),
             )
         return Menu(
-            Item('Albion cursor size', size_menu),
+            Item('Set in-game size', size_menu),
             pystray.Menu.SEPARATOR,
             Item('Launch on startup', set_startup, enabled=False), #TODO
             Item('Exit', self.stop_tray),
