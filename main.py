@@ -36,7 +36,9 @@ def set_cursor_size(size: int= SIZE_DEFAULT) -> bool:
     settings.current_size = size
     return True
 
-def on_event( # window change foreground events
+
+
+def on_event( # foreground window change event
         win_event_hook_handle=None,
         event_id=None,
         hwnd=None,
@@ -63,7 +65,6 @@ def on_event( # window change foreground events
         settings.is_ao_focus = False
         set_cursor_size(SIZE_DEFAULT)
         return
-
 
 def start_hook() -> None:
     global hook
