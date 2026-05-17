@@ -11,6 +11,7 @@ from settings import (
     load_selected_size, save_selected_size,
     )
 
+hook = None
 event_count = 0
 
 def set_cursor_size(size: int= SIZE_DEFAULT) -> bool:
@@ -87,7 +88,8 @@ def start_main():
     start_hook()
 
 def stop_main():
-    hook.unhook()
+    if hook:
+        hook.unhook() # type: ignore
     save_selected_size()
     set_cursor_size(SIZE_DEFAULT)
     os._exit(0)

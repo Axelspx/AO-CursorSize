@@ -60,7 +60,7 @@ def set_startup(value: bool) -> None:
             )
         if value:
             winreg.SetValueEx(key, "AO_Cursor_Size", 0, winreg.REG_SZ, get_exe_path())
-        if not value:
+        else:
             winreg.DeleteValue(key, "AO_Cursor_Size")
         winreg.CloseKey(key)
     except FileNotFoundError:
@@ -77,6 +77,7 @@ def is_startup() -> bool:
             r"Software\Microsoft\Windows\CurrentVersion\Run"
             )
         startup_value = winreg.QueryValueEx(key, "AO_Cursor_Size")[0]
+        winreg.CloseKey(key)
         return startup_value == get_exe_path()
 
     except FileNotFoundError:
