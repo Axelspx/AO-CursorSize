@@ -17,6 +17,7 @@ SPIF_UPDATEINIFILE = 0x01
 SPIF_SENDCHANGE = 0x02
 IGNORED_TITLES = [None, "", "Task Switching"]
 AO_TITLE = "Albion Online Client"
+TITLE = "AO Cursor Size"
 SIZE_DEFAULT = 32 # Windows default (Accessibility cursor size slider value 1)
 
 ## GLOBALS ##
@@ -29,7 +30,7 @@ is_ao_focus: bool= False
 def load_selected_size() -> None:
     global selected_size
     try:
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor")
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor_Size")
         selected_size = winreg.QueryValueEx(key, "selected_size")[0]
         winreg.CloseKey(key)
         print(f"Loaded saved selected size({selected_size}) from registry.")
@@ -39,7 +40,7 @@ def load_selected_size() -> None:
 
 def save_selected_size() -> None:
     try:
-        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor")
+        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor_Size")
         winreg.SetValueEx(key, "selected_size", 0, winreg.REG_DWORD, selected_size)
         winreg.CloseKey(key)
         print(f"Saved selected size({selected_size}) to registry.")
@@ -79,7 +80,7 @@ def is_startup() -> bool:
         return startup_value == get_exe_path()
 
     except FileNotFoundError:
-        print("Could not check startup: AO_CursorSize reg value not found.")
+        print("Could not check startup: AO_Cursor_Size reg value not found.")
         return False
     except OSError:
         return False

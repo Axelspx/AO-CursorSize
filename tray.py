@@ -3,7 +3,7 @@ import pystray
 from pystray import MenuItem as Item, Menu
 from PIL import Image
 import settings
-from settings import save_selected_size, is_startup, set_startup, get_data_path
+from settings import save_selected_size, is_startup, set_startup, get_data_path, TITLE
 
 
 
@@ -12,9 +12,9 @@ class Tray:
         self.exit_callback = exit_callback
         self.icon_path = Image.open(get_data_path("Icons/Cursor.png"))
         self.icon = pystray.Icon(
-            "AO Cursor",
+            TITLE,
             icon = self.icon_path,
-            title = "AO Cursor",
+            title = TITLE,
             )
         self.thread = threading.Thread(target=self.start_tray, daemon=True)
 
