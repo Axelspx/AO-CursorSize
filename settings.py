@@ -85,44 +85,80 @@ def save_reg(name:str, value:int) -> None:
     except OSError:
         debug_print("ERROR: Unable to save selected size to registry.")
 
+
+## Startup ##
 def set_startup(value: bool) -> None:
-    # Create / delete startup registry value according to passed value
+    # Create / delete CurrentVersion and StartupApproved registry entry according to passed value
     if not hasattr(sys, "frozen"):
         debug_print("Could not set startup: not frozen/executable.")
         return
     try:
-        key = winreg.OpenKey(
+        key_current_ver = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
             r"Software\Microsoft\Windows\CurrentVersion\Run",
             0,
             winreg.KEY_SET_VALUE,
+        )
+        key_start_appr = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+            0,
+            winreg.KEY_SET_VALUE | winreg.KEY_READ,
             )
-        if value:
-            winreg.SetValueEx(key, "AO_Cursor_Size", 0, winreg.REG_SZ, get_exe_path())
-        else:
-            winreg.DeleteValue(key, "AO_Cursor_Size")
-        winreg.CloseKey(key)
+        if value: # True
+            winreg.SetValueEx(key_current_ver, "AO_Cursor_Size", 0, winreg.REG_SZ, get_exe_path())
+            # Set startup enabled by creating registry entry for AO Cursor Size.
+            try:
+                start_appr_value = winreg.QueryValueEx(key_start_appr, "AO_Cursor_Size")[0]
+                if b'\03' in start_appr_value:
+                    winreg.DeleteValue(key_start_appr, "AO_Cursor_Size")
+            except FileNotFoundError:
+                pass
+        else: # False
+            winreg.DeleteValue(key_current_ver, "AO_Cursor_Size")
+        winreg.CloseKey(key_current_ver)
+        winreg.CloseKey(key_start_appr)
         debug_print(f"Set startup {value}")
     except FileNotFoundError:
-        debug_print(f"Could not set startup {value}: reg value not found.")
+        debug_print(r"Could not set startup: AO_Cursor_Size reg key in 'CurrentVersion\Run' not found")
     except OSError:
-        debug_print("ERROR: No change was made to registry.")
+        debug_print("ERROR: No change was made to registry")
 
 def is_startup() -> bool:
-    # Query AO_Cursor_Size startup registry value, returning according to existence
+    # Query AO_Cursor_Size startup registry value and task manager startup registry value, return according to existence
+    # and according to if StartupApproved allows startup to run
     if not hasattr(sys, "frozen"):
         return False
     try:
-        key = winreg.OpenKey(
+        key_current_ver = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
             r"Software\Microsoft\Windows\CurrentVersion\Run"
-            )
-        startup_value = winreg.QueryValueEx(key, "AO_Cursor_Size")[0]
-        winreg.CloseKey(key)
-        return startup_value == get_exe_path()
-
+        )
+        key_start_appr = winreg.OpenKey(
+            winreg.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
+            0,
+            winreg.KEY_READ,
+        )
+        value1 = winreg.QueryValueEx(key_current_ver, "AO_Cursor_Size")[0]
+        try:
+            start_appr_value = winreg.QueryValueEx(key_start_appr, "AO_Cursor_Size")[0]
+            if b'\x03' in start_appr_value:
+                value2 = False
+                debug_print(r"Startup cannot run: x03 entry in 'StartupApproved\Run'")
+            else:
+                value2 = True
+                debug_print(r"Startup can run: non x03 entry in 'StartupApproved\Run'")
+        except FileNotFoundError:
+            debug_print(r"Startup can run: no entry in 'StartupApproved\Run'")
+            value2 = True
+        winreg.CloseKey(key_current_ver)
+        winreg.CloseKey(key_start_appr)
+        result = value1==get_exe_path() and value2
+        print(f"Startup: {result}")
+        return result
     except FileNotFoundError:
-        debug_print("Could not check startup: AO_Cursor_Size reg value not found.")
+        debug_print(r"Startup disabled: AO_Cursor_Size does not exist in 'CurrentVersion\Run'")
         return False
     except OSError:
         return False
