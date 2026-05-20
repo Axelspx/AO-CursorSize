@@ -1,9 +1,9 @@
 import winreg
 import ctypes
-import os
 import sys
+import pathlib
 
-## CONSTANTS ##
+## VARIABLES ##
 USER32 = ctypes.WinDLL("user32", use_last_error=True)
 USER32.SystemParametersInfoW.restype = ctypes.c_bool
 USER32.SystemParametersInfoW.argtypes = [
@@ -22,7 +22,7 @@ TITLE = "AO Cursor Size"
 SIZE_DEFAULT = 32 # Windows default (Accessibility cursor size slider value 1)
 SIZE_REG = "selected_size"
 CURSOR_REG = "cursor_index"
-CURSOR = ["Cursor_y.png", "Cursor_b.png", "Cursor.png"]
+CURSOR = ["cursor_y.png", "cursor_b.png", "cursor.png"]
 
 cursor_index: int= 0    # 0, 1, 2
 selected_size: int= SIZE_DEFAULT
@@ -47,33 +47,40 @@ def cycle_cursor_icon() -> None:
 def get_cursor_icon() -> str:
     return CURSOR[cursor_index]
 
-def get_data_path(orig_path:str) -> str:
-    # Post/pre pyinstaller freeze additional data(Icons) path
+def get_data_path(icon_name:str) -> str:
+    # Post/pre pyinstaller freeze data(Icons) path
     if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, orig_path)
-    return os.path.abspath(orig_path)
+        return str(pathlib.Path(sys._MEIPASS) / "icons" / icon_name)
+    return str(pathlib.Path(__file__).parent.parent / "icons" / icon_name)
 
-def get_exe_path() -> str|bool:
+def get_exe_path() -> str|None:
     # Return executable path if running via executable file
     if hasattr(sys, "frozen"):
         return sys.executable
-    else:
-        debug_print("Could not return path: not frozen/executable.")
-        return False
+    debug_print("Could not return path: not frozen/executable.")
+    return None
+
+def is_selected_size(size:int) -> bool:
+    # Check passed size is matching current selected size setting, return result
+    return selected_size == size
 
 
 ## REGISTRY ##
-def load_reg(name:str) -> int|bool:
+def load_reg(name:str) -> int|None:
     # Query then return registry key value
     try:
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor_Size")
         value = winreg.QueryValueEx(key, name)[0]
         winreg.CloseKey(key)
         debug_print(f"Loaded reg [{name}: {value}] from registry.")
-        return value
+        return int(value)
     except (FileNotFoundError, OSError):
         debug_print("ERROR: Unable to load selected size from registry.")
-        return False
+        if name == SIZE_REG:
+            return 32 # Default size
+        if name == CURSOR_REG:
+            return 0 # Default cursor index
+        return None
 
 def save_reg(name:str, value:int) -> None:
     # Create/overwrite registry key value
@@ -85,12 +92,11 @@ def save_reg(name:str, value:int) -> None:
     except OSError:
         debug_print("ERROR: Unable to save selected size to registry.")
 
-
 ## Startup ##
 def set_startup(value: bool) -> None:
     # Create / delete CurrentVersion and StartupApproved registry entry according to passed value
     if not hasattr(sys, "frozen"):
-        debug_print("Could not set startup: not frozen/executable.")
+        debug_print("Running from IDE, not setting startup")
         return
     try:
         key_current_ver = winreg.OpenKey(
@@ -98,7 +104,7 @@ def set_startup(value: bool) -> None:
             r"Software\Microsoft\Windows\CurrentVersion\Run",
             0,
             winreg.KEY_SET_VALUE,
-        )
+            )
         key_start_appr = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
             r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
@@ -128,18 +134,19 @@ def is_startup() -> bool:
     # Query AO_Cursor_Size startup registry value and task manager startup registry value, return according to existence
     # and according to if StartupApproved allows startup to run
     if not hasattr(sys, "frozen"):
+        debug_print("Running from IDE, skipped startup check and returned false")
         return False
     try:
         key_current_ver = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
-            r"Software\Microsoft\Windows\CurrentVersion\Run"
-        )
+            r"Software\Microsoft\Windows\CurrentVersion\Run",
+            )
         key_start_appr = winreg.OpenKey(
             winreg.HKEY_CURRENT_USER,
             r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run",
             0,
             winreg.KEY_READ,
-        )
+            )
         value1 = winreg.QueryValueEx(key_current_ver, "AO_Cursor_Size")[0]
         try:
             start_appr_value = winreg.QueryValueEx(key_start_appr, "AO_Cursor_Size")[0]

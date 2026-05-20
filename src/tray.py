@@ -8,7 +8,7 @@ from settings import (
     get_data_path,
     TITLE, cycle_cursor_icon, get_cursor_icon,
     save_reg, CURSOR_REG, SIZE_REG,
-    debug_print,
+    debug_print, is_selected_size,
     )
 
 
@@ -18,13 +18,13 @@ class Tray:
         self.exit_callback = exit_callback
         self.icon = pystray.Icon(
             TITLE,
-            icon = Image.open(get_data_path(f"Icons/{get_cursor_icon()}")),
+            icon = Image.open(get_data_path(get_cursor_icon())),
             title = TITLE,
             )
         self.thread = threading.Thread(target=self.start_tray, daemon=True)
 
 
-    ## TRAY CONTROL ##
+    ## CONTROL ##
     def start_tray(self) -> None:
         # Set tray icon menu, run tray process
         self.icon.menu = self.build_menu()
@@ -35,9 +35,9 @@ class Tray:
         self.icon.stop()
         self.exit_callback()
 
-    def set_icon(self, img_path) -> None:
+    def set_icon(self, img_path:str) -> None:
         # Update tray icon to passed img path
-        self.icon.icon = Image.open(get_data_path(f"Icons/{img_path}"))
+        self.icon.icon = Image.open(get_data_path(img_path))
         debug_print(f"Set icon to: {img_path}")
 
 
@@ -56,11 +56,7 @@ class Tray:
         debug_print(f"Set selected size {size}")
         self.icon.menu = self.build_menu()
 
-    def is_selected_size(self, size:int) -> bool:
-        # Check passed size is matching current selected size setting, return result
-        return settings.selected_size == size
-
-    def toggle_startup(self) -> None:
+    def on_toggle_startup(self) -> None:
         # Startup on/off switch, update tray menu
         value = not is_startup()
         set_startup(value)
@@ -71,8 +67,8 @@ class Tray:
             return Item(
                 label,
                 lambda icon, item: self.on_select_size(size),
-                checked=lambda item: self.is_selected_size(size),
-            )
+                checked=lambda item: is_selected_size(size),
+                )
         size_menu = Menu(
             menu_item('x0.75', 24),
             menu_item('x1 (default)', 32),
@@ -85,7 +81,7 @@ class Tray:
         return Menu(
             Item('Set in-game size', size_menu),
             pystray.Menu.SEPARATOR,
-            Item('Launch on startup', self.toggle_startup, checked=lambda item: is_startup()),
+            Item('Launch on startup', self.on_toggle_startup, checked=lambda item: is_startup()),
             Item('Exit', self.stop_tray),
             Item('Left-Click-Item', lambda icon, item:self.on_click_icon(), default=True, visible=False)
             )
