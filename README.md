@@ -20,7 +20,7 @@ Personalize your tray icon, by left clicking it you can change its appearance to
 
 I made this because Albion Online does not provide an in-game cursor size option, and does not scale cursor size with screen resolution resulting in the cursor being disproportionately small on 1440p, 4K, or high-DPI displays. 
 
-My close friend suffers from visual impairment and is largely the reason I made this, I hope other players suffering with visual accessibility issues may also find this helpful.
+My close friend suffers from some visual impairment and was a major reason I made this. I hope other players with visual accessibility needs find it helpful too.
 
 ## Is this allowed
 
