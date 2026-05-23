@@ -3,15 +3,16 @@ A lightweight Windows tray app that increases cursor size while playing **Albion
 
 <img width="600" alt="AO_Cursor_Size" src="https://github.com/user-attachments/assets/e78e205b-fa2a-42ce-9f97-b872bc155a0f" />
 
-
-While **Albion Online** is the active window, **AO-CursorSize** temporarily increases your cursor size. When you tab out or switch apps, your original cursor size is restored automatically.
+While **Albion Online** is your active window, AO-Cursor Size increases your cursor size. When you tab out/switch to another window, your original cursor size is restored automatically.
 
 
 ## Installation & Usage
 
 Download the [latest release](https://github.com/Axelspx/AO-CursorSize/releases/tag/v1.0.0), unzip the `.zip` file then double click the AO-CursorSize `.exe` file to run. AO-CursorSize should then be running and visible in your Windows tray.
 
-Right click the AO-CursorSize tray icon to choose your preferred in-game cursor size from the tray menu, and optionally set AO-CursorSize to launch on startup. (all selections save and persist between close/open/restart)
+Right click the tray icon to choose your preferred in-game cursor size from the tray menu, and optionally set AO-CursorSize to launch on startup. (all selections save and persist between close/open/restart)
+
+Personalize your tray icon, by left clicking it you can change its appearance to any of the Albion Online cursor textures. (Default, Gold, Crystal)
 
 <img width="403" height="240" alt="image" src="https://github.com/user-attachments/assets/57c32a7a-a707-41e0-b59c-b395c5dda618" />
 
