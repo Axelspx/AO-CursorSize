@@ -8,7 +8,7 @@ While **Albion Online** is your active window, **AO Cursor Size** increases your
 
 ## Installation & Usage
 
-Download the [latest release](https://github.com/Axelspx/AO-CursorSize/releases/tag/v1.0.0), unzip the `.zip` file then double click the AO-CursorSize`.exe` file to run. **AO Cursor Size** should then be running and visible in your Windows tray.
+Download the [latest release](https://github.com/Axelspx/AO-CursorSize/releases/tag/v1.0.0), unzip the `.zip` file then double click the `AO-CursorSize.exe` file to run. **AO Cursor Size** should then be running and visible in your Windows tray.
 
 Right click the tray icon to choose your preferred in-game cursor size from the tray menu, and optionally set **AO Cursor Size** to launch on startup. (all selections save and persist between close/open/restart)
 
