@@ -1,6 +1,8 @@
 # AlbionOnline - CursorSize
 A lightweight Windows tray app that increases cursor size while playing **Albion Online**.
-<img width="680" alt="AO_Cursor_Size" src="https://github.com/user-attachments/assets/e78e205b-fa2a-42ce-9f97-b872bc155a0f" />
+
+<img width="600" alt="AO_Cursor_Size" src="https://github.com/user-attachments/assets/e78e205b-fa2a-42ce-9f97-b872bc155a0f" />
+
 
 While **Albion Online** is the active window, **AO-CursorSize** temporarily increases your cursor size. When you tab out or switch apps, your original cursor size is restored automatically.
 
