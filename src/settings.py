@@ -3,7 +3,7 @@ import ctypes
 import sys
 import pathlib
 
-## VARIABLES ##
+## CONSTANTS ##
 USER32 = ctypes.WinDLL("user32", use_last_error=True)
 USER32.SystemParametersInfoW.restype = ctypes.c_bool
 USER32.SystemParametersInfoW.argtypes = [
@@ -24,6 +24,7 @@ SIZE_REG = "selected_size"
 CURSOR_REG = "cursor_index"
 CURSOR = ["cursor_y.png", "cursor_b.png", "cursor.png"]
 
+## VARIABLES ##
 cursor_index: int= 0    # 0, 1, 2
 selected_size: int= SIZE_DEFAULT
 current_size: int= SIZE_DEFAULT
@@ -35,7 +36,7 @@ debug: bool= False
 ## HELPERS ##
 def debug_print(msg: str) -> None:
     # Print debug msgs when debug = True
-    if debug:
+    if debug or pathlib.Path(sys.executable).name == "AO-CursorSize-debug.exe":
         print(msg)
 
 def cycle_cursor_icon() -> None:
@@ -69,7 +70,7 @@ def is_selected_size(size:int) -> bool:
 def load_reg(name:str) -> int|None:
     # Query then return registry key value
     try:
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor_Size")
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\AO_CursorSize")
         value = winreg.QueryValueEx(key, name)[0]
         winreg.CloseKey(key)
         debug_print(f"Loaded reg [{name}: {value}] from registry.")
@@ -85,7 +86,7 @@ def load_reg(name:str) -> int|None:
 def save_reg(name:str, value:int) -> None:
     # Create/overwrite registry key value
     try:
-        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\AO_Cursor_Size")
+        key = winreg.CreateKey(winreg.HKEY_CURRENT_USER, r"Software\AO_CursorSize")
         winreg.SetValueEx(key, name, 0, winreg.REG_DWORD, value)
         winreg.CloseKey(key)
         debug_print(f"Saved registry [{name}: {value}] to registry.")
@@ -112,26 +113,26 @@ def set_startup(value: bool) -> None:
             winreg.KEY_SET_VALUE | winreg.KEY_READ,
             )
         if value: # True
-            winreg.SetValueEx(key_current_ver, "AO_Cursor_Size", 0, winreg.REG_SZ, get_exe_path())
+            winreg.SetValueEx(key_current_ver, "AO_CursorSize", 0, winreg.REG_SZ, get_exe_path())
             # Set startup enabled by creating registry entry for AO Cursor Size.
             try:
-                start_appr_value = winreg.QueryValueEx(key_start_appr, "AO_Cursor_Size")[0]
+                start_appr_value = winreg.QueryValueEx(key_start_appr, "AO_CursorSize")[0]
                 if b'\03' in start_appr_value:
-                    winreg.DeleteValue(key_start_appr, "AO_Cursor_Size")
+                    winreg.DeleteValue(key_start_appr, "AO_CursorSize")
             except FileNotFoundError:
                 pass
         else: # False
-            winreg.DeleteValue(key_current_ver, "AO_Cursor_Size")
+            winreg.DeleteValue(key_current_ver, "AO_CursorSize")
         winreg.CloseKey(key_current_ver)
         winreg.CloseKey(key_start_appr)
         debug_print(f"Set startup {value}")
     except FileNotFoundError:
-        debug_print(r"Could not set startup: AO_Cursor_Size reg key in 'CurrentVersion\Run' not found")
+        debug_print(r"Could not set startup: AO_CursorSize reg key in 'CurrentVersion\Run' not found")
     except OSError:
         debug_print("ERROR: No change was made to registry")
 
 def is_startup() -> bool:
-    # Query AO_Cursor_Size startup registry value and task manager startup registry value, return according to existence
+    # Query AO_CursorSize startup registry value and task manager startup registry value, return according to existence
     # and according to if StartupApproved allows startup to run
     if not hasattr(sys, "frozen"):
         debug_print("Running from IDE, skipped startup check and returned false")
@@ -147,9 +148,9 @@ def is_startup() -> bool:
             0,
             winreg.KEY_READ,
             )
-        value1 = winreg.QueryValueEx(key_current_ver, "AO_Cursor_Size")[0]
+        value1 = winreg.QueryValueEx(key_current_ver, "AO_CursorSize")[0]
         try:
-            start_appr_value = winreg.QueryValueEx(key_start_appr, "AO_Cursor_Size")[0]
+            start_appr_value = winreg.QueryValueEx(key_start_appr, "AO_CursorSize")[0]
             if b'\x03' in start_appr_value:
                 value2 = False
                 debug_print(r"Startup cannot run: x03 entry in 'StartupApproved\Run'")
@@ -165,7 +166,7 @@ def is_startup() -> bool:
         print(f"Startup: {result}")
         return result
     except FileNotFoundError:
-        debug_print(r"Startup disabled: AO_Cursor_Size does not exist in 'CurrentVersion\Run'")
+        debug_print(r"Startup disabled: AO_CursorSize does not exist in 'CurrentVersion\Run'")
         return False
     except OSError:
         return False

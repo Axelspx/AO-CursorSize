@@ -14,6 +14,8 @@ from settings import (
 hook = None
 event_count = 0
 
+
+## MAIN ##
 def set_cursor_size(size: int= SIZE_DEFAULT) -> bool:
 
     if not size:
