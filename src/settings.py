@@ -11,7 +11,7 @@ USER32.SystemParametersInfoW.argtypes = [
     ctypes.c_uint,
     ctypes.c_void_p,
     ctypes.c_uint,
-]
+    ]
 SPI_SETCURSORSIZE = 0x2029
 SPIF_UPDATEINIFILE = 0x01
 SPIF_SENDCHANGE = 0x02
