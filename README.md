@@ -1,16 +1,16 @@
-# AlbionOnline - CursorSize
+# AlbionOnline - Cursor Size
 A lightweight Windows tray app that increases cursor size while playing **Albion Online**.
 
 <img width="600" alt="AO_Cursor_Size" src="https://github.com/user-attachments/assets/e78e205b-fa2a-42ce-9f97-b872bc155a0f" />
 
-While **Albion Online** is your active window, AO-Cursor Size increases your cursor size. When you tab out/switch to another window, your original cursor size is restored automatically.
+While **Albion Online** is your active window, **AO Cursor Size** increases your cursor size. When you tab out/switch to another window, your original cursor size is restored automatically.
 
 
 ## Installation & Usage
 
-Download the [latest release](https://github.com/Axelspx/AO-CursorSize/releases/tag/v1.0.0), unzip the `.zip` file then double click the AO-CursorSize `.exe` file to run. AO-CursorSize should then be running and visible in your Windows tray.
+Download the [latest release](https://github.com/Axelspx/AO-CursorSize/releases/tag/v1.0.0), unzip the `.zip` file then double click the AO-CursorSize`.exe` file to run. **AO Cursor Size** should then be running and visible in your Windows tray.
 
-Right click the tray icon to choose your preferred in-game cursor size from the tray menu, and optionally set AO-CursorSize to launch on startup. (all selections save and persist between close/open/restart)
+Right click the tray icon to choose your preferred in-game cursor size from the tray menu, and optionally set **AO Cursor Size** to launch on startup. (all selections save and persist between close/open/restart)
 
 Personalize your tray icon, by left clicking it you can change its appearance to any of the Albion Online cursor textures. (Default, Gold, Crystal)
 
@@ -18,7 +18,7 @@ Personalize your tray icon, by left clicking it you can change its appearance to
 
 ## Why
 
-I made this because Albion Online does not provide an in-game cursor size option, and does not scale cursor size with screen resolution resulting in the cursor being disproportionately small and hard to see on 1440p, 4K, or high-DPI displays. 
+I made this because Albion Online does not provide an in-game cursor size option, and does not scale cursor size with screen resolution resulting in the cursor being disproportionately small on 1440p, 4K, or high-DPI displays. 
 
 My close friend suffers from visual impairment and is largely the reason I made this, I hope other players suffering with visual accessibility issues may also find this helpful.
 
